@@ -67,6 +67,16 @@ describe('model', () => {
     expect(m.roxzone).toBeLessThan(330);
   });
 
+  it('easy runs are logged but do not move the prediction', () => {
+    const base = runModel(data(bench(130, 1, 5)));
+    const easy = workoutFromTemplate(TEMPLATES.find((t) => t.id === 'easy-run')!);
+    const blk = easy.blocks[0];
+    easy.results[blk.id] = { 0: { [blk.items[0].id]: { time: 7000 * 0.42 } } }; // 7 min/km
+    easy.completed = true;
+    const m = runModel(data(bench(130, 1, 5), easy));
+    expect(m.estimates.run.value).toBeCloseTo(base.estimates.run.value, 0);
+  });
+
   it('parses phone-friendly times', () => {
     expect(parseTime('145')).toBe(105);
     expect(parseTime('1.45')).toBe(105);

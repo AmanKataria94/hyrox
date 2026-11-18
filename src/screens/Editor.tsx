@@ -126,6 +126,10 @@ export function BlockEditor({ b, onChange, onRemove }: { b: Block; onChange: (b:
         <button className="btn small" onClick={() => setItems((a) => a.push({ id: uid(), kind: 'bike', label: 'Assault Bike' }))}>+ Bike</button>
         <button className="btn small" onClick={() => setItems((a) => a.push({ id: uid(), kind: 'other', label: 'Exercise' }))}>+ Other</button>
       </div>
+      <label className="inline small">
+        <input type="checkbox" checked={!!b.easy} onChange={(e) => onChange({ ...b, easy: e.target.checked || undefined })} />
+        Easy pace — log it, but don't use runs for the prediction
+      </label>
       <textarea
         placeholder="Notes / coaching cues"
         value={b.notes ?? ''}

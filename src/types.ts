@@ -30,6 +30,10 @@ export interface Block {
   notes?: string;
   /** Benchmark-test block: gets extra weight in the prediction model. */
   isTest?: boolean;
+  /** Easy/aerobic running: logged but not used for the prediction (easy pace ≠ race pace). */
+  easy?: boolean;
+  /** Override for run pace → race pace on fresh runs / run intervals in this block. */
+  paceFactor?: number;
 }
 
 export interface ItemResult {

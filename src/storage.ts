@@ -21,7 +21,7 @@ export function defaultData(): AppData {
   };
 }
 
-function normalise(raw: unknown): AppData {
+export function normalise(raw: unknown): AppData {
   const d = raw as Partial<AppData>;
   if (!d || typeof d !== 'object' || !Array.isArray(d.workouts)) throw new Error('Not a Hyrox trainer backup file');
   const base = defaultData();

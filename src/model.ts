@@ -143,15 +143,16 @@ export function extractObservations(w: Workout, ctx: Ctx): Partial<Record<Compon
         if (!x) continue;
 
         if (it.kind === 'run') {
+          if (b.easy) continue;
           if (b.mode === 'rounds') {
             const d = x.distance ?? it.distance;
             if (!x.time || !d || d < 200) continue;
             const km = toKm(x.time, d) * s.skillmillFactor;
             if (hasStation) push('run', { value: km, cv: b.isTest ? CV.test : isSim ? CV.sim : CV.compromised, source: `${b.title}: compromised run` });
-            else push('run', { value: km * s.freshToRaceFactor, cv: CV.freshRun, source: `${b.title}: fresh run` });
+            else push('run', { value: km * (b.paceFactor ?? s.freshToRaceFactor), cv: CV.freshRun, source: `${b.title}: fresh run` });
           } else if (b.workSec && x.distance) {
             const pace = (b.workSec / x.distance) * 1000 * s.skillmillFactor;
-            push('run', { value: pace * s.intervalToRaceFactor, cv: CV.interval, source: `${b.title}: run intervals` });
+            push('run', { value: pace * (b.paceFactor ?? s.intervalToRaceFactor), cv: CV.interval, source: `${b.title}: run intervals` });
           }
         } else if (it.kind === 'bike') {
           if (b.mode === 'intervals' && b.workSec && x.cals) bikeCpm.push(x.cals / (b.workSec / 60));

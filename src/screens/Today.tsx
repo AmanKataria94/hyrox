@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { NumInput } from '../components/TimeInput';
 import { STATION } from '../hyrox';
-import { PHASE_LABEL, blankWorkout, optionsFor, planInfo, uid, workoutFromTemplate } from '../plan';
+import { PHASE_LABEL, TEMPLATES, blankWorkout, optionsFor, planInfo, uid, workoutFromTemplate } from '../plan';
 import { useStore } from '../store';
-import type { Block, Template, Workout } from '../types';
+import type { Block, Phase, Template, Workout } from '../types';
 import { fmt } from '../time';
 
 export function describeBlock(b: Block): string {
@@ -23,10 +23,60 @@ export function describeBlock(b: Block): string {
   return `${b.rounds > 1 ? `${b.rounds} rounds: ` : ''}${items}`;
 }
 
+const PHASE_CHIPS: { p: Phase; label: string }[] = [
+  { p: 'base', label: 'Base' },
+  { p: 'build', label: 'Build' },
+  { p: 'race', label: 'Race' },
+  { p: 'taper', label: 'Taper' },
+];
+
+function PhaseChips({ phases, current }: { phases: Phase[]; current: Phase }) {
+  if (!phases.length || phases.includes('test')) return null;
+  return (
+    <div className="phase-chips" aria-label="Best for">
+      <span className="small muted">Best for</span>
+      {PHASE_CHIPS.filter((c) => phases.includes(c.p)).map((c) => (
+        <span key={c.p} className={`phase-chip ${c.p}${c.p === current ? ' now' : ''}`}>
+          {c.label}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function OptionCard({ t, reason, current, onPick, onDelete }: {
+  t: Template; reason?: string; current: Phase; onPick: () => void; onDelete?: () => void;
+}) {
+  return (
+    <div className="card option" onClick={onPick}>
+      <div className="row between">
+        <h3>{t.name}</h3>
+        {reason && <span className="tag">{reason}</span>}
+      </div>
+      <PhaseChips phases={t.phases} current={current} />
+      <p className="muted small">{t.summary}</p>
+      <ul className="blocks">
+        {t.blocks.map((b) => (
+          <li key={b.id}>
+            <strong>{b.title}</strong> — {describeBlock(b)}
+          </li>
+        ))}
+      </ul>
+      {onDelete && (
+        <button className="btn ghost small" onClick={(e) => (e.stopPropagation(), onDelete())}>
+          Delete template
+        </button>
+      )}
+    </div>
+  );
+}
+
 export function Today({ go }: { go: (to: string) => void }) {
   const { data, update } = useStore();
   const info = planInfo(data);
   const opts = optionsFor(data);
+  const shown = new Set(opts.map((o) => o.template.id));
+  const others = TEMPLATES.filter((t) => !shown.has(t.id) && !t.phases.includes('test'));
   const [activity, setActivity] = useState({ type: 'Boxing', minutes: 60 as number | undefined });
 
   const begin = (w: Workout) => {
@@ -67,26 +117,22 @@ export function Today({ go }: { go: (to: string) => void }) {
       )}
 
       {opts.map(({ template: t, reason }) => (
-        <div key={t.id} className="card option" onClick={() => begin(workoutFromTemplate(t))}>
-          <div className="row between">
-            <h3>{t.name}</h3>
-            {reason && <span className="tag">{reason}</span>}
-          </div>
-          <p className="muted small">{t.summary}</p>
-          <ul className="blocks">
-            {t.blocks.map((b) => (
-              <li key={b.id}>
-                <strong>{b.title}</strong> — {describeBlock(b)}
-              </li>
-            ))}
-          </ul>
-          {t.custom && (
-            <button className="btn ghost small" onClick={(e) => (e.stopPropagation(), removeCustom(t))}>
-              Delete template
-            </button>
-          )}
-        </div>
+        <OptionCard key={t.id} t={t} reason={reason} current={info.phase} onPick={() => begin(workoutFromTemplate(t))}
+          onDelete={t.custom ? () => removeCustom(t) : undefined} />
       ))}
+
+      {others.length > 0 && (
+        <details className="card expand">
+          <summary>
+            <span>Other phases</span>
+            <span className="tag">{others.length}</span>
+          </summary>
+          <p className="muted small">Not scheduled for this week, but you can still pick any of them.</p>
+          {others.map((t) => (
+            <OptionCard key={t.id} t={t} current={info.phase} onPick={() => begin(workoutFromTemplate(t))} />
+          ))}
+        </details>
+      )}
 
       <div className="card option" onClick={() => begin(blankWorkout())}>
         <h3>Build from scratch</h3>

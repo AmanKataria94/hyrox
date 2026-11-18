@@ -162,3 +162,16 @@ details summary { cursor: pointer; margin-top: 10px; }
 .meter i { display: block; height: 100%; background: repeating-linear-gradient(-45deg, var(--accent) 0 8px, #d6c100 8px 12px); transition: width .9s cubic-bezier(.2,.8,.2,1); }
 .raceday { margin-top: 10px; padding: 8px 12px; display: inline-block; border: 1px solid var(--accent); border-radius: 4px; }
 .raceday strong { font-family: var(--display); font-size: 24px; font-style: italic; margin-left: 6px; }
+
+/* phase markers */
+.phase-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 2px 0 6px; }
+.phase-chip {
+  font-family: var(--display); text-transform: uppercase; font-weight: 800; font-size: 12px; letter-spacing: .05em;
+  padding: 1px 8px; border-radius: 3px; border: 1px solid var(--line); color: var(--muted); transform: skewX(-10deg);
+}
+.phase-chip.base { border-color: #3a7bd5; color: #7fb0ff; }
+.phase-chip.build { border-color: #d58a3a; color: #ffb36b; }
+.phase-chip.race { border-color: #d5453a; color: #ff7b70; }
+.phase-chip.taper { border-color: #3fae6e; color: #6fdc9b; }
+.phase-chip.now { background: var(--accent); border-color: var(--accent); color: #000; }
+details.expand .card.option { margin-top: 10px; }

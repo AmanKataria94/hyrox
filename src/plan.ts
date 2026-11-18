@@ -65,6 +65,34 @@ export const TEMPLATES: Template[] = [
     fourByFour('4×4 Run', run(0), FOURx4_RUN),
   ]),
 
+  // ---- running focus (all phases) ----
+  T('easy-run', 'Easy Aerobic Run', 'Zone 2: 40–50 min conversational pace. Builds the aerobic base. Logged, not used for the prediction.', ['base', 'build', 'race'], () => [
+    rounds('Easy Run', 1, [run(7000)], 'Nose-breathing / full-sentence pace (~60–70% HRmax). Slower than you think. Change the distance to whatever you covered.', { easy: true }),
+    rounds('Strides', 4, [run(100)], '4 × 20 s relaxed fast strides, walk back. Good form, not a sprint.', { easy: true }),
+  ]),
+  T('threshold-run', 'Threshold Run', '3 × 8 min at comfortably-hard pace. Raises the pace you can hold for a whole race.', ['base', 'build'], () => [
+    {
+      id: uid(), title: 'Threshold Intervals', mode: 'intervals', rounds: 3, workSec: 480, restSec: 120, items: [run(0)],
+      notes: `${WARMUP} ~85–90% HRmax, could say short sentences. Even pace across all 3. Log metres per rep.`,
+      paceFactor: 1.02,
+    },
+    rounds('Cool-down', 1, [run(1000)], 'Easy jog.', { easy: true }),
+  ]),
+  T('km-repeats', '1 km Repeats', '5 × 1 km at goal race pace, 90 s rest. Teaches race pace.', ['base', 'build', 'race'], () => [
+    rounds('1 km Repeats', 5, [run(1000)], `${WARMUP} Target your predicted race pace or a touch quicker. 90 s standing rest between reps.`, { paceFactor: 1.06 }),
+    rounds('Station Finisher', 2, [st('wallballs', 25), st('bbj', 20)], 'Short maintenance for stations.'),
+  ]),
+  T('run-heavy-compromised', 'Run-Heavy Compromised', '6 × (800 m run + short station). Running is the work; stations just pre-fatigue.', ['base', 'build', 'race'], () => [
+    rounds('Compromised Runs', 6, [run(800), st('farmers', 50)], `${WARMUP} Run hard-steady, station quick. Swap the station each week (ski 250 m, WB 15, sled push 12.5 m).`),
+  ]),
+  T('run-heavy-sled', 'Run-Heavy Compromised (Sled)', '6 × 800 m runs, alternating a short Pro sled push and a farmers carry. Practises running on sled-heavy legs.', ['build', 'race'], () => [
+    rounds('Sled Round', 3, [run(800), st('push', 12.5), run(800), st('farmers', 50)], `${WARMUP} Get from the sled to the Skillmill fast — the first 200 m after the push is the point. Hold your run pace, don't sprint the sled.`),
+  ]),
+  T('vo2-shorts', '30/30 Run Intervals', '2 × 8 × 30 s fast / 30 s easy on the Skillmill. Sharp VO2 work without long suffering.', ['base', 'build'], () => [
+    { id: uid(), title: '30/30 Set 1', mode: 'intervals', rounds: 8, workSec: 30, restSec: 30, items: [run(0)], notes: `${WARMUP} Fast but repeatable — the last rep as fast as the first. 3 min easy before set 2.`, easy: true },
+    { id: uid(), title: '30/30 Set 2', mode: 'intervals', rounds: 8, workSec: 30, restSec: 30, items: [run(0)], notes: 'Same pace as set 1.', easy: true },
+  ]),
+
   // ---- build ----
   T('half-sim-a', 'Half-Sim A (Stations 1–4)', 'Race-format runs + your share of Ski, Push, Pull, BBJ, then 4×4 bike.', ['build', 'race'], () => [
     rounds('Half Sim A', 1, sim(['ski', 'push', 'pull', 'bbj']), `${WARMUP} Race pace. Tap ⏱ after each segment.`),
